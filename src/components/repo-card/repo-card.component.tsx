@@ -27,7 +27,7 @@ export const RepoCard: React.FC<RepoCardProps> = ({ repository }) => {
       </button>
       <p className="text-secondary fs-8">{repository.description}</p>
       <div className="d-flex justify-content-between">
-        <div className="d-flex gap-3">
+        <div className="d-flex gap-3 flex-wrap">
           <div className="text-secondary fs-7">{repository.language}</div>
           <div className="text-secondary fs-7">
             <a

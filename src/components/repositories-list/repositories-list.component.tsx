@@ -50,9 +50,9 @@ export const RepositoriesList = () => {
 
   return (
     <div className="card mb-5">
-      <div className="card-header d-flex justify-content-between align-items-center">
+      <div className="card-header d-flex justify-content-between align-items-center flex-wrap py-3">
         <TrendNavigation />
-        <div className="d-flex gap-3">
+        <div className="d-flex gap-3 flex-wrap">
           <SearchDropdown
             title="Spoken Language"
             selectedValue={spokenLanguage}

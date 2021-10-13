@@ -68,10 +68,10 @@ export const DeveloperCard: React.FC<DeveloperCardProps> = ({ developer }) => {
             )}
           </div>
         </div>
-        <div className="col-sm-4 d-flex justify-content-end gap-2">
+        <div className="col-sm-4 d-flex justify-content-sm-end gap-2 me-3 mt-3 mt-sm-0">
           {isSponsorBtnVisible && (
             <div>
-              <button className="btn btn-secondary btn-sm float-end px-3 developer-card__sponsor-btn">
+              <button className="btn btn-secondary btn-sm float-end px-3 developer-card__sponsor-btn text-nowrap">
                 <HeartIcon
                   size={16}
                   className="text-sponsors developer-card__sponsor-icon"
