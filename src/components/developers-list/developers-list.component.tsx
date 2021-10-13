@@ -13,8 +13,8 @@ export const DevelopersList = () => {
       <div className="card-header d-flex justify-content-between align-items-center">
         <TrendNavigation />
         <div className="d-flex gap-3">
-          <SearchDropdown />
-          <SearchDropdown />
+          {/* <SearchDropdown />
+          <SearchDropdown /> */}
         </div>
       </div>
       <div className="card-body p-0">

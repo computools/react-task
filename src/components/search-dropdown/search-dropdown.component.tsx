@@ -1,11 +1,33 @@
-import { TriangleDownIcon } from "@primer/octicons-react";
+import { CheckIcon, TriangleDownIcon, XIcon } from "@primer/octicons-react";
 import clsx from "clsx";
-import React, { useState } from "react";
+import React, { ChangeEvent, useRef, useState } from "react";
 import { FixedSizeList } from "react-window";
-import { spokenLanguages } from "../../data/spoken-languages";
 import "./search-dropdown.styles.scss";
 
-export const SearchDropdown = () => {
+type DropdownValue = {
+  option: string;
+  value: string;
+};
+
+type SearchDropdownProps = {
+  title: string;
+  selectedValue: DropdownValue | null;
+  callToActionText: string;
+  searchPlaceholder: string;
+  listData: DropdownValue[];
+  setValue: (value: DropdownValue | null) => void;
+  cleanValueText: string;
+};
+
+export const SearchDropdown: React.FC<SearchDropdownProps> = ({
+  title,
+  selectedValue,
+  callToActionText,
+  searchPlaceholder,
+  listData,
+  setValue,
+  cleanValueText,
+}) => {
   const [isOpened, setIsOpened] = useState(false);
   const dropdownClasses = clsx(
     "list-group",
@@ -21,31 +43,61 @@ export const SearchDropdown = () => {
   const selectorClasses = clsx("fs-8", "search-dropdown__selector", {
     "search-dropdown__selector--active": isOpened,
   });
+
+  const [dropdownData, setDropdownData] = useState(listData);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const onSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setDropdownData((prevData) =>
+      prevData.filter((d) =>
+        d.value.toLowerCase().includes(e.target.value.toLowerCase())
+      )
+    );
+  };
+
   const toggleDropdown = () => {
+    if (!isOpened) {
+      searchInputRef.current?.focus();
+    }
     setIsOpened((v) => !v);
+  };
+  const onItemClick = (value: DropdownValue | null) => {
+    setValue(value);
+    setDropdownData(listData);
+    searchInputRef.current!.value = "";
+    toggleDropdown();
   };
 
   return (
     <div className="search-dropdown__wrapper position-relative">
       <span onClick={toggleDropdown} role="button" className={selectorClasses}>
-        Spoken Language: <strong>Any</strong> <TriangleDownIcon size={14} />
+        {title}: <strong>{selectedValue ? selectedValue.value : "Any"}</strong>{" "}
+        <TriangleDownIcon size={14} />
       </span>
       <div className={dropdownClasses}>
-        <div className="list-group-item fw-bold fs-7">
-          Select a spoken language
-        </div>
+        <div className="list-group-item fw-bold fs-7">{callToActionText}</div>
         <div className="list-group-item">
           <input
             type="text"
             className="form-control form-control-sm"
-            placeholder="Username"
+            placeholder={searchPlaceholder}
+            ref={searchInputRef}
+            onChange={onSearchChange}
           />
         </div>
+        {selectedValue && (
+          <button
+            className="list-group-item list-group-item-action fs-7 text-start border-start-0 border-end-0"
+            onClick={() => onItemClick(null)}
+          >
+            <XIcon size={16} className="me-1" />
+            {cleanValueText}
+          </button>
+        )}
         <div className="search-dropdown__list-wrapper">
           <FixedSizeList
             height={400}
-            itemData={spokenLanguages}
-            itemCount={spokenLanguages.length}
+            itemData={dropdownData}
+            itemCount={dropdownData.length}
             itemSize={35}
             width={300}
             className="rounded-bottom"
@@ -53,10 +105,17 @@ export const SearchDropdown = () => {
             {({ index, style, data }) => (
               <button
                 className="list-group-item list-group-item-action fs-7 text-start border-start-0 border-end-0"
-                key={`language-${data[index].urlParam}`}
+                key={`language-${data[index].option}`}
                 style={style}
+                onClick={() => onItemClick(data[index])}
               >
-                {data[index].name}
+                <CheckIcon
+                  className={clsx("me-1", {
+                    invisible: data[index].option !== selectedValue?.option,
+                  })}
+                  size={16}
+                />
+                {data[index].value}
               </button>
             )}
           </FixedSizeList>
