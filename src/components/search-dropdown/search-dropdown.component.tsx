@@ -14,10 +14,11 @@ type SearchDropdownProps = {
   title: string;
   selectedValue: DropdownValue | null;
   callToActionText: string;
-  searchPlaceholder: string;
   listData: DropdownValue[];
   setValue: (value: DropdownValue | null) => void;
-  cleanValueText: string;
+  cleanValueText?: string;
+  searchPlaceholder?: string;
+  isSearchable?: boolean;
 };
 
 export const SearchDropdown: React.FC<SearchDropdownProps> = ({
@@ -28,6 +29,7 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   listData,
   setValue,
   cleanValueText,
+  isSearchable,
 }) => {
   const [isOpened, setIsOpened] = useState(false);
   const dropdownClasses = clsx(
@@ -56,7 +58,9 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   };
 
   const cleanState = () => {
-    searchInputRef.current!.value = "";
+    if (searchInputRef.current) {
+      searchInputRef.current.value = "";
+    }
     setDropdownData(listData);
   };
   const toggleDropdown = () => {
@@ -93,16 +97,18 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
       </span>
       <div className={dropdownClasses}>
         <div className="list-group-item fw-bold fs-7">{callToActionText}</div>
-        <div className="list-group-item">
-          <input
-            type="text"
-            className="form-control form-control-sm"
-            placeholder={searchPlaceholder}
-            ref={searchInputRef}
-            onChange={onSearchChange}
-          />
-        </div>
-        {selectedValue && (
+        {isSearchable && (
+          <div className="list-group-item">
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder={searchPlaceholder}
+              ref={searchInputRef}
+              onChange={onSearchChange}
+            />
+          </div>
+        )}
+        {selectedValue && cleanValueText && (
           <button
             className="list-group-item list-group-item-action fs-7 text-start border-start-0 border-end-0"
             onClick={() => onItemClick(null)}
@@ -141,4 +147,8 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
       </div>
     </div>
   );
+};
+
+SearchDropdown.defaultProps = {
+  isSearchable: true,
 };

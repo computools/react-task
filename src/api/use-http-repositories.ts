@@ -28,6 +28,7 @@ export type Repository = {
 type FilterUseHttpRepositories = {
   spokenLanguage: string | null;
   programmingLanguage: string | null;
+  dateRange: string | null;
 };
 
 export const useHttpRepositories = (
@@ -43,6 +44,7 @@ export const useHttpRepositories = (
         {
           params: {
             spoken_lang: filter.spokenLanguage,
+            since: filter.dateRange,
           },
         }
       );

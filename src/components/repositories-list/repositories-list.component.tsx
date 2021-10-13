@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router";
 import { useHttpRepositories } from "../../api/use-http-repositories";
+import { DateRange, dateRanges } from "../../data/date-ranges";
 import {
   ProgrammingLanguage,
   programmingLanguages,
@@ -19,22 +20,33 @@ export const RepositoriesList = () => {
   const [spokenLanguage, setSpokenLanguage] = useState<SpokenLanguage | null>(
     getValueFromParams(history, "spoken_language", spokenLanguages)
   );
-  const [programmingLanguage, setProgrammingLanguage] =
-    useState<ProgrammingLanguage | null>(
-      getValueFromParams(history, "programming_language", spokenLanguages)
-    );
-  const { isLoading, error, data } = useHttpRepositories({
-    spokenLanguage: spokenLanguage?.option || null,
-    programmingLanguage: programmingLanguage?.option || null,
-  });
   const assignSpokenLanguage = (lang: SpokenLanguage | null) => {
     setSpokenLanguage(lang);
     toggleSearchParam("spoken_language", lang?.option || null, history);
   };
+
+  const [programmingLanguage, setProgrammingLanguage] =
+    useState<ProgrammingLanguage | null>(
+      getValueFromParams(history, "programming_language", programmingLanguages)
+    );
   const assignProgrammingLanguage = (lang: ProgrammingLanguage | null) => {
     setProgrammingLanguage(lang);
     toggleSearchParam("programming_language", lang?.option || null, history);
   };
+
+  const [dateRange, setDateRange] = useState<DateRange | null>(
+    getValueFromParams(history, "date_range", dateRanges) || dateRanges[0]
+  );
+  const assignDateRange = (range: DateRange | null) => {
+    setDateRange(range);
+    toggleSearchParam("date_range", range?.option || null, history);
+  };
+
+  const { isLoading, error, data } = useHttpRepositories({
+    spokenLanguage: spokenLanguage?.option || null,
+    programmingLanguage: programmingLanguage?.option || null,
+    dateRange: dateRange?.option || null,
+  });
 
   return (
     <div className="card mb-5">
@@ -58,6 +70,14 @@ export const RepositoriesList = () => {
             listData={programmingLanguages}
             setValue={assignProgrammingLanguage}
             cleanValueText="Clear language"
+          />
+          <SearchDropdown
+            title="Date range"
+            selectedValue={dateRange}
+            callToActionText="Adjust time span"
+            listData={dateRanges}
+            setValue={assignDateRange}
+            isSearchable={false}
           />
         </div>
       </div>
