@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { useQuery } from "react-query";
+import { useQuery, UseQueryResult } from "react-query";
 import { apiClient } from "../infra/api-client";
 
 const DEVELOPERS_DATA = "DEVELOPERS_DATA";
@@ -20,22 +20,31 @@ export type Developer = {
   popularRepository: DeveloperPopularRepository;
 };
 
-type ReturnUseHttpDevelopers = {
-  isLoading: boolean;
-  error: AxiosError<unknown, any> | null;
-  data: Developer[] | undefined;
+type FilterUseHttpDevelopers = {
+  programmingLanguage: string | null;
+  dateRange: string | null;
 };
 
-export const useHttpDevelopers = (): ReturnUseHttpDevelopers => {
-  const { isLoading, error, data } = useQuery<
-    Developer[],
-    AxiosError,
-    Developer[]
-  >(DEVELOPERS_DATA, async () => {
-    const { data } = await apiClient.get<Developer[]>("/developers");
+export const useHttpDevelopers = (
+  filter: FilterUseHttpDevelopers
+): UseQueryResult<Developer[], AxiosError> => {
+  const query = useQuery<Developer[], AxiosError, Developer[]>(
+    [DEVELOPERS_DATA, filter],
+    async () => {
+      const { data } = await apiClient.get<Developer[]>(
+        `/developers${
+          filter.programmingLanguage ? `/${filter.programmingLanguage}` : ""
+        }`,
+        {
+          params: {
+            since: filter.dateRange,
+          },
+        }
+      );
 
-    return data;
-  });
+      return data;
+    }
+  );
 
-  return { isLoading, error, data };
+  return query;
 };
