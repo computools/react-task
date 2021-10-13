@@ -7,6 +7,8 @@
   --color-fg-muted: #8b949e;
   --color-fg-on-emphasis: #f0f6fc;
   --color-accent-fg: #58a6ff;
+  --color-severe-fg: #db6d28;
+  --color-sponsors-fg: #db61a2;
   
   --color-border-default: #30363d;
 
@@ -30,9 +32,11 @@ body {
 
 a {
   color: var(--color-accent-fg);
+  text-decoration: none;
 
   &:hover {
     color: var(--color-accent-fg);
+    text-decoration: underline;
   }
 }
 
@@ -43,3 +47,4 @@ a {
 @import "./form";
 @import "./alert";
 @import "./utils";
+@import "./containers";
