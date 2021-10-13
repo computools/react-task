@@ -1,5 +1,5 @@
 import { AxiosError } from "axios";
-import { useQuery } from "react-query";
+import { useQuery, UseQueryResult } from "react-query";
 import { apiClient } from "../infra/api-client";
 
 const REPOSITORIES_DATA = "repositoriesData";
@@ -25,22 +25,28 @@ export type Repository = {
   builtBy: RepositoryBuiltBy[];
 };
 
-type ReturnUseHttpRepositories = {
-  isLoading: boolean;
-  error: AxiosError<unknown, any> | null;
-  data: Repository[] | undefined;
+type FilterUseHttpRepositories = {
+  spokenLanguage: string | null;
 };
 
-export const useHttpRepositories = (): ReturnUseHttpRepositories => {
-  const { isLoading, error, data } = useQuery<
-    Repository[],
-    AxiosError,
-    Repository[]
-  >(REPOSITORIES_DATA, async () => {
-    const { data } = await apiClient.get<Repository[]>("/repositories");
+export const useHttpRepositories = (
+  filter: FilterUseHttpRepositories
+): UseQueryResult<Repository[], AxiosError> => {
+  const query = useQuery<Repository[], AxiosError, Repository[]>(
+    [REPOSITORIES_DATA, filter],
+    async () => {
+      const { data } = await apiClient.get<Repository[]>("/repositories", {
+        params: {
+          spoken_lang: filter.spokenLanguage,
+        },
+      });
 
-    return data;
-  });
+      return data;
+    },
+    {
+      refetchOnWindowFocus: false,
+    }
+  );
 
-  return { isLoading, error, data };
+  return query;
 };

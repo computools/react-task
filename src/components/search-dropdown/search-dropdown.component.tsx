@@ -2,6 +2,7 @@ import { CheckIcon, TriangleDownIcon, XIcon } from "@primer/octicons-react";
 import clsx from "clsx";
 import React, { ChangeEvent, useRef, useState } from "react";
 import { FixedSizeList } from "react-window";
+import { useOnClickOutside } from "../../hooks/use-on-click-outside";
 import "./search-dropdown.styles.scss";
 
 type DropdownValue = {
@@ -54,21 +55,32 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     );
   };
 
+  const cleanState = () => {
+    searchInputRef.current!.value = "";
+    setDropdownData(listData);
+  };
   const toggleDropdown = () => {
     if (!isOpened) {
-      searchInputRef.current?.focus();
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      });
     }
     setIsOpened((v) => !v);
+    cleanState();
   };
   const onItemClick = (value: DropdownValue | null) => {
     setValue(value);
-    setDropdownData(listData);
-    searchInputRef.current!.value = "";
     toggleDropdown();
   };
 
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(wrapperRef, () => toggleDropdown());
+
   return (
-    <div className="search-dropdown__wrapper position-relative">
+    <div
+      className="search-dropdown__wrapper position-relative"
+      ref={wrapperRef}
+    >
       <span onClick={toggleDropdown} role="button" className={selectorClasses}>
         {title}: <strong>{selectedValue ? selectedValue.value : "Any"}</strong>{" "}
         <TriangleDownIcon size={14} />

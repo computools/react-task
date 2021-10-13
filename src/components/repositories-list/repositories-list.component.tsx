@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useHistory } from "react-router";
 import { useHttpRepositories } from "../../api/use-http-repositories";
 import { SpokenLanguage, spokenLanguages } from "../../data/spoken-languages";
 import { Loader } from "../loader/loader.component";
@@ -7,12 +8,33 @@ import { SearchDropdown } from "../search-dropdown/search-dropdown.component";
 import { TrendNavigation } from "../trend-navigation/trend-navigation.component";
 
 export const RepositoriesList = () => {
-  const { isLoading, error, data } = useHttpRepositories();
+  const history = useHistory();
+
   const [spokenLanguage, setSpokenLanguage] = useState<SpokenLanguage | null>(
-    null
+    (() => {
+      const params = new URLSearchParams(history.location.search);
+      const language = params.get("spoken_language");
+      const value = spokenLanguages.find((v) => v.option === language);
+
+      return value || null;
+    })()
   );
+  const { isLoading, error, data } = useHttpRepositories({
+    spokenLanguage: spokenLanguage?.option || null,
+  });
   const assignSpokenLanguage = (lang: SpokenLanguage | null) => {
     setSpokenLanguage(lang);
+
+    const searchParams = new URLSearchParams(history.location.search);
+    if (searchParams.has("spoken_language") && !lang) {
+      searchParams.delete("spoken_language");
+    } else if (searchParams.has("spoken_language") && lang) {
+      searchParams.set("spoken_language", lang.option);
+    } else {
+      searchParams.append("spoken_language", lang!.option);
+    }
+
+    history.push({ search: searchParams.toString() });
   };
 
   return (
