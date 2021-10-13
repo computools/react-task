@@ -27,6 +27,7 @@ export type Repository = {
 
 type FilterUseHttpRepositories = {
   spokenLanguage: string | null;
+  programmingLanguage: string | null;
 };
 
 export const useHttpRepositories = (
@@ -35,11 +36,16 @@ export const useHttpRepositories = (
   const query = useQuery<Repository[], AxiosError, Repository[]>(
     [REPOSITORIES_DATA, filter],
     async () => {
-      const { data } = await apiClient.get<Repository[]>("/repositories", {
-        params: {
-          spoken_lang: filter.spokenLanguage,
-        },
-      });
+      const { data } = await apiClient.get<Repository[]>(
+        `/repositories${
+          filter.programmingLanguage ? `/${filter.programmingLanguage}` : ""
+        }`,
+        {
+          params: {
+            spoken_lang: filter.spokenLanguage,
+          },
+        }
+      );
 
       return data;
     },

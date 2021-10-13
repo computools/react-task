@@ -1,7 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useHistory } from "react-router";
 import { useHttpRepositories } from "../../api/use-http-repositories";
+import {
+  ProgrammingLanguage,
+  programmingLanguages,
+} from "../../data/programming-languages";
 import { SpokenLanguage, spokenLanguages } from "../../data/spoken-languages";
+import { getValueFromParams } from "../../utils/get-value-from-params";
+import { toggleSearchParam } from "../../utils/toggle-search-param";
 import { Loader } from "../loader/loader.component";
 import { RepoCard } from "../repo-card/repo-card.component";
 import { SearchDropdown } from "../search-dropdown/search-dropdown.component";
@@ -11,51 +17,49 @@ export const RepositoriesList = () => {
   const history = useHistory();
 
   const [spokenLanguage, setSpokenLanguage] = useState<SpokenLanguage | null>(
-    (() => {
-      const params = new URLSearchParams(history.location.search);
-      const language = params.get("spoken_language");
-      const value = spokenLanguages.find((v) => v.option === language);
-
-      return value || null;
-    })()
+    getValueFromParams(history, "spoken_language", spokenLanguages)
   );
+  const [programmingLanguage, setProgrammingLanguage] =
+    useState<ProgrammingLanguage | null>(
+      getValueFromParams(history, "programming_language", spokenLanguages)
+    );
   const { isLoading, error, data } = useHttpRepositories({
     spokenLanguage: spokenLanguage?.option || null,
+    programmingLanguage: programmingLanguage?.option || null,
   });
   const assignSpokenLanguage = (lang: SpokenLanguage | null) => {
     setSpokenLanguage(lang);
-
-    const searchParams = new URLSearchParams(history.location.search);
-    if (searchParams.has("spoken_language") && !lang) {
-      searchParams.delete("spoken_language");
-    } else if (searchParams.has("spoken_language") && lang) {
-      searchParams.set("spoken_language", lang.option);
-    } else {
-      searchParams.append("spoken_language", lang!.option);
-    }
-
-    history.push({ search: searchParams.toString() });
+    toggleSearchParam("spoken_language", lang?.option || null, history);
+  };
+  const assignProgrammingLanguage = (lang: ProgrammingLanguage | null) => {
+    setProgrammingLanguage(lang);
+    toggleSearchParam("programming_language", lang?.option || null, history);
   };
 
   return (
     <div className="card mb-5">
       <div className="card-header d-flex justify-content-between align-items-center">
         <TrendNavigation />
-        {!isLoading && !error && (
-          <div className="d-flex gap-3">
-            <SearchDropdown
-              title="Spoken Language"
-              selectedValue={spokenLanguage}
-              callToActionText="Select a spoken language"
-              searchPlaceholder="Filter spoken languages"
-              listData={spokenLanguages}
-              setValue={assignSpokenLanguage}
-              cleanValueText="Clear spoken language"
-            />
-            {/* <SearchDropdown />
-            <SearchDropdown /> */}
-          </div>
-        )}
+        <div className="d-flex gap-3">
+          <SearchDropdown
+            title="Spoken Language"
+            selectedValue={spokenLanguage}
+            callToActionText="Select a spoken language"
+            searchPlaceholder="Filter spoken languages"
+            listData={spokenLanguages}
+            setValue={assignSpokenLanguage}
+            cleanValueText="Clear spoken language"
+          />
+          <SearchDropdown
+            title="Language"
+            selectedValue={programmingLanguage}
+            callToActionText="Select a language"
+            searchPlaceholder="Filter languages"
+            listData={programmingLanguages}
+            setValue={assignProgrammingLanguage}
+            cleanValueText="Clear language"
+          />
+        </div>
       </div>
       <div className="card-body p-0">
         {isLoading && <Loader />}

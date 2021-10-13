@@ -72,9 +72,15 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
     setValue(value);
     toggleDropdown();
   };
+  const closeDropdown = () => {
+    if (isOpened) {
+      setIsOpened(false);
+      cleanState();
+    }
+  };
 
   const wrapperRef = useRef<HTMLDivElement>(null);
-  useOnClickOutside(wrapperRef, () => toggleDropdown());
+  useOnClickOutside(wrapperRef, closeDropdown);
 
   return (
     <div
